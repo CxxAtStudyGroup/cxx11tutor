@@ -12,8 +12,6 @@
 #include <typeinfo>       // operator typeid
 #include <type_traits>
 
-template<typename T> void f1(T&& param);
-
 void deducing_types_01(void);
 
 

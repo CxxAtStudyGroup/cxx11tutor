@@ -15,49 +15,245 @@ using namespace std;
 #include <iostream>
 
 
-template<typename T>
-void f1(T&& param) {
-    using namespace std;
+struct ReturnStructure {
+    // bool is_rvalue;
+    string deducedTypeForT;
+    string deducedTypeForParamType;
+};
 
-    cout << "    parameter received is of type: IS NOT WORKING AS EXPECTED yet!!!!";
+template<typename T>
+ReturnStructure templateReceivingByRef(T& param) {
+    using namespace std;
+    static string  SEARCH_FOR = "with T = ";
+    ReturnStructure retStruct;
+    retStruct.deducedTypeForParamType = "";
+
     if (is_const<decltype(param)>::value == true) {
-        cout << "const ";
+        retStruct.deducedTypeForParamType += "const ";
     }
     if (is_rvalue_reference<decltype(param)>::value == true) {
-        cout << " rvalue ref ";
+        retStruct.deducedTypeForParamType += "rvalue ref {";
     } else if (is_lvalue_reference<decltype(param)>::value == true) {
-        cout << " lvalue ref ";
+        retStruct.deducedTypeForParamType += "lvalue ref {";
+    } else {
+        retStruct.deducedTypeForParamType += "not a ref {";
     }
-    if (typeid(param) == typeid (T)) {
-        cout << typeid (T).name();
-    } 
-    cout << "\n";
+    retStruct.deducedTypeForParamType += typeid (param).name();
+    retStruct.deducedTypeForParamType +=   "}";
+    
+    // retStruct.is_rvalue = false;
+    
 #if defined(__GNUC__)
-    cout << __PRETTY_FUNCTION__ << '\n';
+    string pretty_function_result(__PRETTY_FUNCTION__);
 #elif defined(_MSC_VER)
-    cout << __FUNCSIG__ << '\n';
+    string pretty_function_result(__FUNCSIG__);
 #endif
+    // pretty_function_result = ") &&"; // for test only
+    size_t args_start_pos = pretty_function_result.find(SEARCH_FOR) + SEARCH_FOR.length(); // procura o final da descrição de parametros de pretty_function_result.
+    if (args_start_pos!= string::npos) {
+        // retStruct.is_rvalue   = (pretty_function_result.find("&&", args_start_pos)!=string::npos);
+        string args = pretty_function_result.substr(args_start_pos);
+        retStruct.deducedTypeForT = args.substr(0, args.length()-1); 
+    }
+    return retStruct;
+}
 
+
+
+template<typename T>
+ReturnStructure templateReceivingByValue(T param) {
+    using namespace std;
+    static string  SEARCH_FOR = "with T = ";
+    ReturnStructure retStruct;
+    retStruct.deducedTypeForParamType = "";
+
+    if (is_const<decltype(param)>::value == true) {
+        retStruct.deducedTypeForParamType += "const ";
+    }
+    if (is_rvalue_reference<decltype(param)>::value == true) {
+        retStruct.deducedTypeForParamType += "rvalue ref {";
+    } else if (is_lvalue_reference<decltype(param)>::value == true) {
+        retStruct.deducedTypeForParamType += "lvalue ref {";
+    } else {
+        retStruct.deducedTypeForParamType += "not a ref {";
+    }
+    retStruct.deducedTypeForParamType += typeid (param).name();
+    retStruct.deducedTypeForParamType +=   "}";
+    
+    // retStruct.is_rvalue = false;
+    
+#if defined(__GNUC__)
+    string pretty_function_result(__PRETTY_FUNCTION__);
+#elif defined(_MSC_VER)
+    string pretty_function_result(__FUNCSIG__);
+#endif
+    // pretty_function_result = ") &&"; // for test only
+    size_t args_start_pos = pretty_function_result.find(SEARCH_FOR) + SEARCH_FOR.length(); // procura o final da descrição de parametros de pretty_function_result.
+    if (args_start_pos!= string::npos) {
+        // retStruct.is_rvalue   = (pretty_function_result.find("&&", args_start_pos)!=string::npos);
+        string args = pretty_function_result.substr(args_start_pos);
+        retStruct.deducedTypeForT = args.substr(0, args.length()-1); 
+    }
+    return retStruct;
+}
+
+template<typename T>
+ReturnStructure templateReceivingByRvalue(T&& param) {
+    using namespace std;
+    static string  SEARCH_FOR = "with T = ";
+    ReturnStructure retStruct;
+    retStruct.deducedTypeForParamType = "";
+
+    if (is_const<decltype(param)>::value == true) {
+        retStruct.deducedTypeForParamType += "const ";
+    }
+    if (is_rvalue_reference<decltype(param)>::value == true) {
+        retStruct.deducedTypeForParamType += "rvalue ref {";
+    } else if (is_lvalue_reference<decltype(param)>::value == true) {
+        retStruct.deducedTypeForParamType += "lvalue ref {";
+    } else {
+        retStruct.deducedTypeForParamType += "not a ref {";
+    }
+    retStruct.deducedTypeForParamType += typeid (param).name();
+    retStruct.deducedTypeForParamType +=   "}";
+    
+    // retStruct.is_rvalue = false;
+    
+#if defined(__GNUC__)
+    string pretty_function_result(__PRETTY_FUNCTION__);
+#elif defined(_MSC_VER)
+    string pretty_function_result(__FUNCSIG__);
+#endif
+    // pretty_function_result = ") &&"; // for test only
+    size_t args_start_pos = pretty_function_result.find(SEARCH_FOR) + SEARCH_FOR.length(); // procura o final da descrição de parametros de pretty_function_result.
+    if (args_start_pos!= string::npos) {
+        // retStruct.is_rvalue   = (pretty_function_result.find("&&", args_start_pos)!=string::npos);
+        string args = pretty_function_result.substr(args_start_pos);
+        retStruct.deducedTypeForT = args.substr(0, args.length()-1); 
+    }
+    return retStruct;
+}
+
+void templateFunctionByValue() {
+    /** 
+     * In the expression bellow (int x =  27) 
+     * x  is a lvalue [because you can take it's address]. 
+     * 27 is an rvalue [you cannot take its address]
+     */
+    int x = 27; // x is an int 
+    const int cx = x; // cx is a const int
+    const int& rx = x; // rx is a read-only view of x
+    int&& urx = 27;
+    ReturnStructure result;
+    
+    cout << "==> Deducing types example template function type deduction passing arguments by Value\n"
+         << "    template<typename T> ReturnStructure\n    templateReceivingByValue(T param) {...}\n";
+
+    cout << "... Calling templateReceivingByValue(int 27),        and return ";
+    result = templateReceivingByValue(27);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+
+    cout << "... Calling templateReceivingByValue(int x),         and return ";
+    result = templateReceivingByValue(x);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    cout << "... Calling templateReceivingByValue(const int cx),  and return ";
+    result = templateReceivingByValue(cx);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    cout << "... Calling templateReceivingByValue(const int& rx), and return ";
+    result = templateReceivingByValue(rx);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    cout << "... Calling templateReceivingByValue(int&& urx),     and return ";
+    result = templateReceivingByValue(urx);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";    
+}
+
+void templateFunctionByURef() {
+    /** 
+     * In the expression bellow (int x =  27) 
+     * x  is a lvalue [because you can take it's address]. 
+     * 27 is an rvalue [you cannot take its address]
+     */
+    int x = 27; // x is an int 
+    
+    const int cx = x; // cx is a const int
+    const int& rx = x; // rx is a read-only view of x
+    int&& urx = 27;
+    ReturnStructure result;
+    
+    cout << "==> Deducing types example template function type deduction passing arguments by rvalue\n"
+         << "    template<typename T> ReturnStructure\n    templateReceivingByRvalue(T&& param) {...}\n";
+
+    
+    cout << "... Calling templateReceivingByRvalue(int 27),        and return ";
+    result = templateReceivingByRvalue(27);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+
+    cout << "... Calling templateReceivingByRvalue(int x),         and return ";
+    result = templateReceivingByRvalue(x);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    cout << "... Calling templateReceivingByRvalue(const int cx),  and return ";
+    result = templateReceivingByRvalue(cx);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    cout << "... Calling templateReceivingByRvalue(const int& rx), and return ";
+    result = templateReceivingByRvalue(rx);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    cout << "... Calling templateReceivingByRvalue(int&& urx),     and return ";
+    result = templateReceivingByRvalue(urx);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";    
+}
+
+void templateFunctionByRef() {
+    /** 
+     * In the expression bellow (int x =  27) 
+     * x  is a lvalue [because you can take it's address]. 
+     * 27 is an rvalue [you cannot take its address]
+     */
+    int x = 27; // x is an int 
+    
+    const int cx = x; // cx is a const int
+    const int& rx = x; // rx is a read-only view of x
+    int&& urx = 27;
+    ReturnStructure result;
+    
+    cout << "==> Deducing types example template function type deduction passing arguments by rvalue\n"
+         << "    template<typename T> ReturnStructure\n    templateReceivingByRef(T& param) {...}\n";
+
+//    cout << "... Calling templateReceivingByRef(int 27),        and return ";
+//    result = templateReceivingByRef(27);
+//    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+
+    cout << "... Calling templateReceivingByRef(int x),         and return ";
+    result = templateReceivingByRef(x);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    cout << "... Calling templateReceivingByRef(const int cx),  and return ";
+    result = templateReceivingByRef(cx);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    cout << "... Calling templateReceivingByRef(const int& rx), and return ";
+    result = templateReceivingByRef(rx);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    cout << "... Calling templateReceivingByRef(int&& urx),     and return ";
+    result = templateReceivingByRef(urx);
+    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";    
 }
 
 void deducing_types_01() {
     using namespace std;
+    
+    templateFunctionByRef();
+    
+    templateFunctionByValue();
+    
+    templateFunctionByURef();
 
-    int x = 27; // x is an int
-    const int cx = x; // cx is a const int
-    const int& rx = x; // rx is a read-only view of x
-    int&& urx = 27;
-
-    cout << "==> Deducing types example 01\n"
-            << "... This example shows template type deduction \n\n"
-            << "... Calling template function f with a parameter of type: " << typeid (x).name() << "\n";
-    f1(x);
-    cout << "\n... Calling template function f with a parameter of type: " << typeid (cx).name() << "\n";
-    f1(cx);
-    cout << "\n... Calling template function f with a parameter of type: " << typeid (rx).name() << "\n";
-    f1(rx);
-    cout << "\n... Calling template function f with a parameter of type: " << typeid (urx).name() << "\n";
-    f1(urx);
 }
 
 /*
@@ -72,7 +268,7 @@ int main(int argc, char** argv) {
     cout << "============================================" << endl << endl;
     
     deducing_types_01();
-//    main2();
+
     return 0;
 }
 
