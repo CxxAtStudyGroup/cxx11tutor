@@ -37,6 +37,12 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/deducing_types.o
 
+# Test Directory
+TESTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tests
+
+# Test Files
+TESTFILES= \
+	${TESTDIR}/TestFiles/f1
 
 # C Compiler Flags
 CFLAGS=
@@ -72,6 +78,47 @@ ${OBJECTDIR}/deducing_types.o: nbproject/Makefile-${CND_CONF}.mk deducing_types.
 # Subprojects
 .build-subprojects:
 	cd ../00_Commons/Utilities && ${MAKE}  -f Makefile CONF=Debug
+
+# Build Test Targets
+.build-tests-conf: .build-conf ${TESTFILES}
+${TESTDIR}/TestFiles/f1: ${TESTDIR}/tests/DeducingTypesTest.o ${TESTDIR}/tests/newtestrunner.o ${OBJECTFILES:%.o=%_nomain.o}
+	${MKDIR} -p ${TESTDIR}/TestFiles
+	${LINK.cc}   -o ${TESTDIR}/TestFiles/f1 $^ ${LDLIBSOPTIONS} `cppunit-config --libs`   
+
+
+${TESTDIR}/tests/DeducingTypesTest.o: tests/DeducingTypesTest.cpp 
+	${MKDIR} -p ${TESTDIR}/tests
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I../00_Commons/Utilities -std=c++11 `cppunit-config --cflags` -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/DeducingTypesTest.o tests/DeducingTypesTest.cpp
+
+
+${TESTDIR}/tests/newtestrunner.o: tests/newtestrunner.cpp 
+	${MKDIR} -p ${TESTDIR}/tests
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I../00_Commons/Utilities -std=c++11 `cppunit-config --cflags` -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/newtestrunner.o tests/newtestrunner.cpp
+
+
+${OBJECTDIR}/deducing_types_nomain.o: ${OBJECTDIR}/deducing_types.o deducing_types.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/deducing_types.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.cc) -g -I../00_Commons/Utilities -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/deducing_types_nomain.o deducing_types.cpp;\
+	else  \
+	    ${CP} ${OBJECTDIR}/deducing_types.o ${OBJECTDIR}/deducing_types_nomain.o;\
+	fi
+
+# Run Test Targets
+.test-conf:
+	@if [ "${TEST}" = "" ]; \
+	then  \
+	    ${TESTDIR}/TestFiles/f1 || true; \
+	else  \
+	    ./${TEST} || true; \
+	fi
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
