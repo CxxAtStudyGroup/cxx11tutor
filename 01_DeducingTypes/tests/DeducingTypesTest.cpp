@@ -4,7 +4,7 @@
  *
  * Created on Apr 30, 2015, 11:35:47 PM
  */
-
+#include "utility_functions.h"
 #include "DeducingTypesTest.h"
 
 
@@ -23,26 +23,21 @@ void DeducingTypesTest::tearDown() {
 }
 
 void DeducingTypesTest::testTemplateReceivingByRef() {
-    int& param;
+    int x = 123;
+    int& param = x;
     ReturnStructure result = templateReceivingByRef(param);
-    if (true /*check result*/) {
-        CPPUNIT_ASSERT(false);
-    }
+    CPPUNIT_ASSERT(result.deducedTypeForT == "int");
 }
 
 void DeducingTypesTest::testTemplateReceivingByRvalue() {
-    int&& param;
+    int&& param = 123;
     ReturnStructure result = templateReceivingByRvalue(param);
-    if (true /*check result*/) {
-        CPPUNIT_ASSERT(false);
-    }
+    CPPUNIT_ASSERT(result.deducedTypeForT == "int&");
 }
 
 void DeducingTypesTest::testTemplateReceivingByValue() {
     int param;
     ReturnStructure result = templateReceivingByValue(param);
-    if (true /*check result*/) {
-        CPPUNIT_ASSERT(false);
-    }
+    CPPUNIT_ASSERT(result.deducedTypeForT == "int");
 }
 

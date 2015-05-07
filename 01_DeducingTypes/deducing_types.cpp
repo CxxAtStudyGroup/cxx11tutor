@@ -6,80 +6,12 @@
  */
 
 #include <iostream>
-
 #include "utility_functions.h"
 #include "deducing_types.h"
 
 using namespace std;
 
-template<typename T>
-ReturnStructure templateReceivingByRef(T& param) {
-    using namespace std;
-    ReturnStructure retStruct;
-#if defined(__GNUC__)
-    string pretty_function_result(__PRETTY_FUNCTION__);
-#elif defined(_MSC_VER)
-    string pretty_function_result(__FUNCSIG__);
-#endif
-    retStruct.deducedTypeForParamType = "";
-    std::string typeIdentified = getType(typeid (param).name());
-    deduce_type(pretty_function_result, 
-                typeIdentified, 
-                is_const<decltype(param)>::value, 
-                is_lvalue_reference<decltype(param)>::value,
-                is_rvalue_reference<decltype(param)>::value,
-                retStruct);
-
-    return retStruct;
-}
-
-
-
-template<typename T>
-ReturnStructure templateReceivingByValue(T param) {
-    using namespace std;
-    ReturnStructure retStruct;
-#if defined(__GNUC__)
-    string pretty_function_result(__PRETTY_FUNCTION__);
-#elif defined(_MSC_VER)
-    string pretty_function_result(__FUNCSIG__);
-#endif
-    retStruct.deducedTypeForParamType = "";
-    std::string typeIdentified = getType(typeid (param).name());
-    deduce_type(pretty_function_result, 
-                typeIdentified, 
-                is_const<decltype(param)>::value, 
-                is_lvalue_reference<decltype(param)>::value,
-                is_rvalue_reference<decltype(param)>::value,
-                retStruct);
-
-    return retStruct;
-
-}
-
-template<typename T>
-ReturnStructure templateReceivingByRvalue(T&& param) {
-    using namespace std;
-    ReturnStructure retStruct;
-#if defined(__GNUC__)
-    string pretty_function_result(__PRETTY_FUNCTION__);
-#elif defined(_MSC_VER)
-    string pretty_function_result(__FUNCSIG__);
-#endif
-    retStruct.deducedTypeForParamType = "";
-    std::string typeIdentified = getType(typeid (param).name());
-    deduce_type(pretty_function_result, 
-                typeIdentified, 
-                is_const<decltype(param)>::value, 
-                is_lvalue_reference<decltype(param)>::value,
-                is_rvalue_reference<decltype(param)>::value,
-                retStruct);
-
-    return retStruct;
-
-}
-
-void templateFunctionByValue() {
+void case1ParamIsRefOrPointer() {
     /** 
      * In the expression bellow (int x =  27) 
      * x  is a lvalue [because you can take it's address]. 
@@ -88,125 +20,158 @@ void templateFunctionByValue() {
     int x = 27; // x is an int 
     const int cx = x; // cx is a const int
     const int& rx = x; // rx is a read-only view of x
-    int&& urx = 27;
-    ReturnStructure result;
-    
-    cout << "==> Deducing types example template function type deduction passing arguments by Value\n"
-         << "    template<typename T> ReturnStructure\n    templateReceivingByValue(T param) {...}\n" 
-         << "    int x = 27;  // x is an int\n " 
-         << "    const int cx = x; // cx is a const int\n"
-         << "    const int& rx = x; // rx is a reference to x as a const int\n";
 
-    cout << "... Calling templateReceivingByValue(int 27),        and return ";
-    result = templateReceivingByValue(27);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
-
-    cout << "... Calling templateReceivingByValue(int x),         and return ";
-    result = templateReceivingByValue(x);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
-    
-    cout << "... Calling templateReceivingByValue(const int cx),  and return ";
-    result = templateReceivingByValue(cx);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
-    
-    cout << "... Calling templateReceivingByValue(const int& rx), and return ";
-    result = templateReceivingByValue(rx);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
-    
-    cout << "... Calling templateReceivingByValue(int&& urx),     and return ";
-    result = templateReceivingByValue(urx);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";    
-}
-
-void templateFunctionByURef() {
-    /** 
-     * In the expression bellow (int x =  27) 
-     * x  is a lvalue [because you can take it's address]. 
-     * 27 is an rvalue [you cannot take its address]
-     */
-    int x = 27; // x is an int 
-    
-    const int cx = x; // cx is a const int
-    const int& rx = x; // rx is a read-only view of x
-    int&& urx = 27;
-    ReturnStructure result;
-    
-    cout << "==> Deducing types example template function type deduction passing arguments by rvalue\n"
-         << "    template<typename T> ReturnStructure\n    templateReceivingByRvalue(T&& param) {...}\n";
-
-    
-    cout << "... Calling templateReceivingByRvalue(int 27),        and return ";
-    result = templateReceivingByRvalue(27);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
-
-    cout << "... Calling templateReceivingByRvalue(int x),         and return ";
-    result = templateReceivingByRvalue(x);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
-    
-    cout << "... Calling templateReceivingByRvalue(const int cx),  and return ";
-    result = templateReceivingByRvalue(cx);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
-    
-    cout << "... Calling templateReceivingByRvalue(const int& rx), and return ";
-    result = templateReceivingByRvalue(rx);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
-    
-    cout << "... Calling templateReceivingByRvalue(int&& urx),     and return ";
-    result = templateReceivingByRvalue(urx);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";    
-}
-
-void templateFunctionByRef() {
-    /** 
-     * In the expression bellow (int x =  27) 
-     * x  is a lvalue [because you can take it's address]. 
-     * 27 is an rvalue [you cannot take its address]
-     */
-    int x = 27; // x is an int 
-    
-    const int cx = x; // cx is a const int
-    const int& rx = x; // rx is a read-only view of x
-    int&& urx = 27;
     ReturnStructure result;
     
     cout << "==> Case 1: ParamType is a Reference or Pointer, but not a Universal Reference \n"
-         << "    Deducing types example template function type deduction passing arguments by rvalue\n"
-         << "    template<typename T> ReturnStructure\n    templateReceivingByRef(T& param) {...}\n"
          << "    int x = 27;        // x  is an int\n"
-         << "    const int cx = x;  // cx is a  const int\n"
-         << "    const int& rx = x; // rx is a  reference to x as a const int\n";
+         << "    const int cx = x;  // cx is a const int\n"
+         << "    const int& rx = x; // rx is a reference to x as a const int\n"
+         << "    const int *px = &x;\n\n"
+         << "    Deducing types example template function type deduction passing arguments by reference\n"
+         << "       template<typename T> ReturnStructure templateReceivingByRef(T& param) {...}\n";
 
-//    cout << "... Calling templateReceivingByRef(int 27),        and return ";
-//    result = templateReceivingByRef(27);
-//    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
-
-    cout << "... Calling templateReceivingByRef --> f(x),         and ";
+    /** Passing by Reference */
     result = templateReceivingByRef(x);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    cout << "... Calling templateReceivingByRef --> f(x),   T deduced type as [" << result.deducedTypeForT
+         << "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
     
-    cout << "... Calling templateReceivingByRef --> f(cx),        and ";
     result = templateReceivingByRef(cx);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    cout << "... Calling templateReceivingByRef --> f(cx),  T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
     
-    cout << "... Calling templateReceivingByRef --> f(rx),        and ";
     result = templateReceivingByRef(rx);
-    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";
+    cout << "... Calling templateReceivingByRef --> f(rx),  T deduced type as [" << result.deducedTypeForT
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";
+
+
+    /** Passing by Const Reference */
+    cout << "    Deducing types example template function type deduction passing arguments by constant reference\n";
+    result = templateReceivingByConstRef(x);
+    cout << "       template<typename T> ReturnStructure templateReceivingByConstRef(const T& param) {...}\n"
+         << "... Calling templateReceivingByConstRef --> f(x),  T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
     
-//    cout << "... Calling templateReceivingByRef(int&& urx),     and return ";
-//    result = templateReceivingByRef(urx);
-//    cout << "T deduced type as [" << result.deducedTypeForT <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";    
+    result = templateReceivingByConstRef(cx);
+    cout << "... Calling templateReceivingByConstRef --> f(cx), T deduced type as [" << result.deducedTypeForT  
+         << "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    result = templateReceivingByConstRef(rx);
+    cout << "... Calling templateReceivingByConstRef --> f(rx), T deduced type as [" << result.deducedTypeForT
+         << "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";
+
+    /** Passing by Pointer*/
+    cout << "    Deducing types example template function type deduction passing arguments by pointer\n"
+         << "       template<typename T> ReturnStructure templateReceivingByPointer(T* param) {...}\n";
+    
+    result = templateReceivingByPointer(&x);
+    cout << "... Calling templateReceivingByConstPointer --> f(&x), T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    const int *px = &x;
+    result = templateReceivingByPointer(px);
+    cout << "... Calling templateReceivingByConstPointer --> f(px), T deduced type as [" << result.deducedTypeForT
+         << "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";
+    
 }
 
-void deducing_types_01() {
-    using namespace std;
-    
-    templateFunctionByRef();
-    
-    templateFunctionByValue();
-    
-    templateFunctionByURef();
+void case2ParamIsURef() {
+    /** 
+     * In the expression bellow (int x =  27) 
+     * x  is a lvalue [because you can take it's address]. 
+     * 27 is an rvalue [you cannot take its address]
+     */
+    int x = 27; // x is an int 
+    const int cx = x; // cx is a const int
+    const int& rx = x; // rx is a read-only view of x
 
+    ReturnStructure result;
+    
+    cout << "==> Case 2: ParamType is an Universal Reference\n"
+         << "    Deducing types example template function type deduction passing arguments by universal reference\n"
+         << "       template<typename T> ReturnStructure templateReceivingByRvalue(T&& param) {...}\n"
+         << "    int x = 27;        // x  is an int\n"
+         << "    const int cx = x;  // cx is a const int\n"
+         << "    const int& rx = x; // rx is a reference to x as a const int\n\n";
+
+    result = templateReceivingByRvalue(x);
+    cout << "... Calling templateReceivingByRvalue(x),  T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    result = templateReceivingByRvalue(cx);
+    cout << "... Calling templateReceivingByRvalue(cx), T deduced type as [" << result.deducedTypeForT
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    result = templateReceivingByRvalue(rx);
+    cout << "... Calling templateReceivingByRvalue(rx), T deduced type as [" << result.deducedTypeForT
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    result = templateReceivingByRvalue(27);
+    cout << "... Calling templateReceivingByRvalue(27), T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";
 }
+
+void case3ParamIsValue() {
+    /** 
+     * In the expression bellow (int x =  27) 
+     * x  is a lvalue [because you can take it's address]. 
+     * 27 is an rvalue [you cannot take its address]
+     */
+    int x = 27; // x is an int 
+    const int cx = x; // cx is a const int
+    const int& rx = x; // rx is a read-only view of x
+    
+    ReturnStructure result;
+
+    cout << "==> Case 3: ParamType is neither a Pointer nor a Reference\n"
+         << "    int x = 27;        // x  is an int\n"
+         << "    const int cx = x;  // cx is a const int\n"
+         << "    const int& rx = x; // rx is a reference to x as a const int\n\n"
+         << "    Deducing types example template function type deduction passing arguments by value\n"
+         << "       template<typename T> ReturnStructure templateReceivingByValue(T param) {...}\n";
+
+    result = templateReceivingByValue(x);
+    cout << "... Calling templateReceivingByValue(x),  T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    result = templateReceivingByValue(cx);
+    cout << "... Calling templateReceivingByValue(cx), T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    result = templateReceivingByValue(rx); 
+    cout << "... Calling templateReceivingByValue(rx), T deduced type as [" << result.deducedTypeForT
+          <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";
+    
+}
+
+//void arrayArguments() {
+//    using namespace std;
+//    
+//    const char name[] = "J. P. Briggs"; // name's type is
+//                                        // const char[13]
+//    const char * ptrToName = name;      // array decays to pointer
+//    
+//    ReturnStructure result;
+//
+//    cout << "==> Case Array Arguments: ParamType is an Array\n"
+//         << "    const char name[] = \"J. P. Briggs\"; // name's type is\n                           // const char[13]\n"
+//         << "    const char * ptrToName = name;      // array decays to pointer\n"
+//         << "    Deducing types example template function type deduction passing arguments by value\n"
+//         << "       template<typename T> ReturnStructure templateReceivingByValue(T param) {...}\n";
+//
+//    result = templateReceivingByValue(name);
+//    cout << "... Calling templateReceivingByValue(name),  T deduced type as [" << result.deducedTypeForT 
+//         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+//    
+//    cout << "    Deducing types example template function type deduction passing arguments by reference\n"
+//         << "       template<typename T> ReturnStructure templateReceivingByRef(T& param) {...}\n";
+//
+//    /** Passing by Reference */
+//    result = templateReceivingByRef(name);
+//    cout << "... Calling templateReceivingByRef --> f(name),   T deduced type as [" << result.deducedTypeForT
+//         << "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+//    
+//}
 
 /*
  * 
@@ -219,7 +184,13 @@ int main(int argc, char** argv) {
     cout << "Deducing Types Tutorial" << endl;
     cout << "============================================" << endl << endl;
     
-    deducing_types_01();
+    case1ParamIsRefOrPointer();
+   
+    case2ParamIsURef();
+    
+    case3ParamIsValue();
+
+//    arrayArguments();
 
     return 0;
 }

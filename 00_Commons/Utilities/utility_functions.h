@@ -8,6 +8,8 @@
 #ifndef UTILITY_FUNCTIONS_H
 #define	UTILITY_FUNCTIONS_H
 
+#include <typeinfo>       // operator typeid
+#include <type_traits>
 #include <iostream>
 #include <string>
 
@@ -25,11 +27,14 @@ class MySuperDuperCalifragilistikEpialitousousOtherClass {
     
 };
 
-
 struct ReturnStructure {
     // bool is_rvalue;
     std::string deducedTypeForT;
     std::string deducedTypeForParamType;
+    bool isConst;
+    bool isLValueRef; 
+    bool isRValueRef; 
+    bool isPointer;
 };
 
 template<typename T> 
@@ -41,9 +46,6 @@ std::string getType(std::string type);
 
 inline void deduce_type(const std::string& typePrettyFunction, 
                         const std::string& paramType, 
-                        bool isConst, 
-                        bool isLValue, 
-                        bool isRValue, 
                         ReturnStructure& retStruct) {
 
     retStruct.deducedTypeForParamType = "";
@@ -58,15 +60,137 @@ inline void deduce_type(const std::string& typePrettyFunction,
         retStruct.deducedTypeForT = typePrettyFunction;
     }
 
-    if (isConst) {
+    if (retStruct.isConst) {
         retStruct.deducedTypeForParamType += "const ";
     }
     retStruct.deducedTypeForParamType += paramType;
-    if (isRValue) {
+    if (retStruct.isRValueRef) {
         retStruct.deducedTypeForParamType += "&&";
-    } else if (isLValue) {
+    } else if (retStruct.isLValueRef) {
         retStruct.deducedTypeForParamType += "&";
+    } else if (retStruct.isPointer) {
+        retStruct.deducedTypeForParamType += "*";
     }
+} 
+
+bool hasConstInPrettyFunctionResultParamType(std::string prettyFunction);
+
+template<typename T>
+ReturnStructure templateReceivingByRef(T& param) {
+    using namespace std;
+    const T x(param);
+    ReturnStructure retStruct;
+#if defined(__GNUC__)
+    string pretty_function_result(__PRETTY_FUNCTION__);
+#elif defined(_MSC_VER)
+    string pretty_function_result(__FUNCSIG__);
+#endif
+    retStruct.deducedTypeForParamType = "";
+    std::string identifiedType = getType(typeid (param).name());
+    retStruct.isConst = !is_assignable<decltype(param), decltype(x)>::value;
+    retStruct.isLValueRef = is_lvalue_reference<decltype(param)>::value; 
+    retStruct.isRValueRef = is_rvalue_reference<decltype(param)>::value; 
+    retStruct.isPointer = is_pointer<decltype(param)>::value;
+    deduce_type(pretty_function_result, 
+                identifiedType, 
+                retStruct);
+    return retStruct;
+}
+
+template<typename T>
+ReturnStructure templateReceivingByConstRef(const T& param) {
+    using namespace std;
+    const T x(param);
+    ReturnStructure retStruct;
+#if defined(__GNUC__)
+    string pretty_function_result(__PRETTY_FUNCTION__);
+#elif defined(_MSC_VER)
+    string pretty_function_result(__FUNCSIG__);
+#endif
+    retStruct.deducedTypeForParamType = "";
+    std::string identifiedType = getType(typeid (param).name());
+    retStruct.isConst = !is_assignable<decltype(param), decltype(x)>::value;
+    retStruct.isLValueRef = is_lvalue_reference<decltype(param)>::value; 
+    retStruct.isRValueRef = is_rvalue_reference<decltype(param)>::value; 
+    retStruct.isPointer = is_pointer<decltype(param)>::value;
+    deduce_type(pretty_function_result, 
+                identifiedType, 
+                retStruct);
+    return retStruct;
+}
+
+template<typename T>
+ReturnStructure templateReceivingByPointer(T* param) {
+    using namespace std;
+    const T* x = new T(*param);
+    ReturnStructure retStruct;
+#if defined(__GNUC__)
+    string pretty_function_result(__PRETTY_FUNCTION__);
+#elif defined(_MSC_VER)
+    string pretty_function_result(__FUNCSIG__);
+#endif
+    retStruct.deducedTypeForParamType = "";
+    std::string identifiedType = getType(typeid (param).name());
+    /* Por motivo não identificado esta função não está funcionando adequadamente e por isto será substituída para ponteiros 
+     bool isConst = !is_assignable<decltype(param), decltype(x)>::value;
+     */
+    retStruct.isConst = hasConstInPrettyFunctionResultParamType(pretty_function_result);
+    retStruct.isLValueRef = is_lvalue_reference<decltype(param)>::value;
+    retStruct.isRValueRef = is_rvalue_reference<decltype(param)>::value;
+    retStruct.isPointer = is_pointer<decltype(param)>::value;
+    deduce_type(pretty_function_result,
+                identifiedType,
+                retStruct);
+    return retStruct;
+}
+
+template<typename T>
+ReturnStructure templateReceivingByValue(T param) {
+    using namespace std;
+    const T x(param);
+    ReturnStructure retStruct;
+#if defined(__GNUC__)
+    string pretty_function_result(__PRETTY_FUNCTION__);
+#elif defined(_MSC_VER)
+    string pretty_function_result(__FUNCSIG__);
+#endif
+    retStruct.deducedTypeForParamType = "";
+    std::string identifiedType = getType(typeid (param).name());
+    /* Por motivo não identificado esta função não está funcionando adequadamente e por isto será substituída para ponteiros 
+     bool isConst = !is_assignable<decltype(param), decltype(x)>::value;
+     */
+    retStruct.isConst = hasConstInPrettyFunctionResultParamType(pretty_function_result);
+    retStruct.isLValueRef = is_lvalue_reference<decltype(param)>::value; 
+    retStruct.isRValueRef = is_rvalue_reference<decltype(param)>::value; 
+    retStruct.isPointer = is_pointer<decltype(param)>::value;
+    deduce_type(pretty_function_result, 
+                identifiedType, 
+                retStruct);
+    return retStruct;
+
+}
+
+template<typename T>
+ReturnStructure templateReceivingByRvalue(T&& param) {
+    using namespace std;
+    const T x(param);
+    ReturnStructure retStruct;
+#if defined(__GNUC__)
+    string pretty_function_result(__PRETTY_FUNCTION__);
+#elif defined(_MSC_VER)
+    string pretty_function_result(__FUNCSIG__);
+#endif
+    retStruct.deducedTypeForParamType = "";
+    std::string identifiedType = getType(typeid (param).name());
+    retStruct.isConst = !is_assignable<decltype(param), decltype(x)>::value;
+    retStruct.isLValueRef = is_lvalue_reference<decltype(param)>::value; 
+    retStruct.isRValueRef = is_rvalue_reference<decltype(param)>::value; 
+    retStruct.isPointer = is_pointer<decltype(param)>::value;
+    deduce_type(pretty_function_result, 
+                identifiedType, 
+                retStruct);
+
+    return retStruct;
 }
 
 

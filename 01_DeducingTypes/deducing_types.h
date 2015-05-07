@@ -9,10 +9,6 @@
 #define	DEDUCING_TYPES_H
 
 #include <iostream>
-#include <typeinfo>       // operator typeid
-#include <type_traits>
-
-void deducing_types_01(void);
 
 
 #endif	/* DEDUCING_TYPES_H */

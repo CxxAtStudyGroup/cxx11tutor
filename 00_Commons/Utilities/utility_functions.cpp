@@ -43,6 +43,12 @@ std::string decomposeComplexType(std::string typeName) {
 std::string getType(std::string type) {
     std::string returnType;
     // std::cout << "\nreceived type: " << type << "\n";
+    if (type[0] == 'P') {
+        type = type.substr(1);
+    }
+    if (type[0] == 'K') {
+        type = type.substr(1);
+    }
     if (type == "i") {
         returnType = "int" ;
     } else if (type == "j") {
@@ -73,7 +79,7 @@ std::string getType(std::string type) {
            type = type.substr(2);
         } else if (type[0] == 'N' && isdigit(type[1])) {
            type = type.substr(1);
-        }  else { 
+        } else { 
             std::cout << "\nType identified is : " << type << "\n";
             returnType = "Unidentified Type";
         }
@@ -83,4 +89,15 @@ std::string getType(std::string type) {
         returnType = "Unidentified Type";
     }
     return returnType;
+}
+
+bool hasConstInPrettyFunctionResultParamType(std::string prettyFunction) {
+    bool hasConst = false;
+    size_t iniPos = prettyFunction.find_first_of('[');
+    if (iniPos != std::string::npos) {
+        if (prettyFunction.find("const", iniPos) != std::string::npos) {
+            hasConst = true;
+        } 
+    }
+    return hasConst;
 }
