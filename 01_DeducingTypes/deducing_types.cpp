@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <array>
 #include "utility_functions.h"
 #include "deducing_types.h"
 
@@ -140,38 +141,77 @@ void case3ParamIsValue() {
     
     result = templateReceivingByValue(rx); 
     cout << "... Calling templateReceivingByValue(rx), T deduced type as [" << result.deducedTypeForT
-          <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";
     
 }
 
-//void arrayArguments() {
-//    using namespace std;
-//    
-//    const char name[] = "J. P. Briggs"; // name's type is
-//                                        // const char[13]
-//    const char * ptrToName = name;      // array decays to pointer
-//    
-//    ReturnStructure result;
-//
-//    cout << "==> Case Array Arguments: ParamType is an Array\n"
-//         << "    const char name[] = \"J. P. Briggs\"; // name's type is\n                           // const char[13]\n"
-//         << "    const char * ptrToName = name;      // array decays to pointer\n"
-//         << "    Deducing types example template function type deduction passing arguments by value\n"
-//         << "       template<typename T> ReturnStructure templateReceivingByValue(T param) {...}\n";
-//
-//    result = templateReceivingByValue(name);
-//    cout << "... Calling templateReceivingByValue(name),  T deduced type as [" << result.deducedTypeForT 
-//         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
-//    
-//    cout << "    Deducing types example template function type deduction passing arguments by reference\n"
-//         << "       template<typename T> ReturnStructure templateReceivingByRef(T& param) {...}\n";
-//
-//    /** Passing by Reference */
-//    result = templateReceivingByRef(name);
-//    cout << "... Calling templateReceivingByRef --> f(name),   T deduced type as [" << result.deducedTypeForT
-//         << "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
-//    
-//}
+void arrayArguments() {
+    using namespace std;
+    
+    const char name[] = "J. P. Briggs"; // name's type is
+                                        // const char[13]
+    const char * ptrToName = name;      // array decays to pointer
+    
+    int intValues[] = { 1, 3, 7, 9, 11, 22, 35 };
+    std::array<int, arraySize(intValues)> mappedVals;
+
+    ReturnStructure result;
+
+    cout << "==> Case Array Arguments: ParamType is an Array\n"
+         << "    const char name[] = \"J. P. Briggs\"; // name's type is\n                           // const char[13]\n"
+         << "    const char * ptrToName = name;      // array decays to pointer\n"
+         << "    int intValues[] = { 1, 3, 7, 9, 11, 22, 35 };\n"
+         << "    std::array<int, sizeof(intValues)> mappedVals;\n"
+         << "    Deducing types example template function type deduction passing arguments by value\n"
+         << "       template<typename T> ReturnStructure templateReceivingByValue(T param) {...}\n";
+
+    result = templateReceivingByValue(name);
+    cout << "... Calling templateReceivingByValue(name),       T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    result = templateReceivingByValue(ptrToName);
+    cout << "... Calling templateReceivingByValue(ptrToName),  T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    result = templateReceivingByValue(intValues);
+    cout << "... Calling templateReceivingByValue(intValues),  T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    result = templateReceivingByValue(mappedVals);
+    cout << "... Calling templateReceivingByValue(mappedVals),  T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n\n";
+    
+    cout << "    Deducing types example template function type deduction passing arguments by reference\n"
+         << "       template<typename T> ReturnStructure templateReceivingByRef(T& param) {...}\n";
+
+    /** Passing by Reference */
+    result = templateReceivingArrayByRef(name);
+    cout << "... Calling templateReceivingByRef --> f(name),        T deduced type as [" << result.deducedTypeForT
+         << "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    result = templateReceivingArrayByRef(intValues);
+    cout << "... Calling templateReceivingByRef --> f(intValues),   T deduced type as [" << result.deducedTypeForT
+         << "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+}
+
+void someFunc(int, double) {}  // someFunc is a function - type is void(int, double)
+
+void functionArguments() {
+
+    ReturnStructure result;
+
+    cout << "==> Case Function Arguments: ParamType is an function\n"
+         << "    void someFunc(int, double); // someFunc is a function - type is void(int, double)\n\n"
+         << "    Deducing types example template function type deduction passing arguments by value\n"
+         << "       template<typename T> ReturnStructure templateReceivingByValue(T param) {...}\n";
+
+    /** Parameter by value */
+    result = templateReceivingByValue(someFunc);
+    cout << "... Calling templateReceivingByValue(someFunc),       T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+    /** Parameter by reference */
+    result = templateReceivingFuncByRef(someFunc);
+    cout << "... Calling templateReceivingFuncByRef(someFunc),     T deduced type as [" << result.deducedTypeForT 
+         <<  "] and ParamType deduced type as [" << result.deducedTypeForParamType << "]\n";
+    
+}
 
 /*
  * 
@@ -190,7 +230,9 @@ int main(int argc, char** argv) {
     
     case3ParamIsValue();
 
-//    arrayArguments();
+    arrayArguments();
+    
+    functionArguments();
 
     return 0;
 }

@@ -1,8 +1,17 @@
 #include <typeinfo>
-
 #include <boost/lexical_cast.hpp>
 
 #include "utility_functions.h"
+std::string getTypeLenPart(std::string typeName) {
+        size_t idx = 0;
+        std::string num;
+        while (isdigit(typeName[idx])) { // Compute size of the next name part
+            if (isdigit(typeName[idx])) {
+                num += typeName[idx++];
+            }
+        }
+        return num;
+}
 
 std::string decomposeComplexType(std::string typeName) {
         std::string retString;
@@ -12,12 +21,7 @@ std::string decomposeComplexType(std::string typeName) {
         if (typeName.substr(0,3)=="EvE") {
            return decomposeComplexType(typeName.substr(3));
         } 
-        while (isdigit(typeName[idx])) { // Compute size of the next name part
-            if (isdigit(typeName[idx])) {
-                num += typeName[idx++];
-            }
-        }
-        
+        num = getTypeLenPart(typeName);
         try {
             len = boost::lexical_cast<size_t>(num);
         } catch (std::bad_cast &bce) {
@@ -41,7 +45,15 @@ std::string decomposeComplexType(std::string typeName) {
 }
 
 std::string getType(std::string type) {
-    std::string returnType;
+    std::string returnType("");
+    std::string arraySize("");
+    int status;
+    returnType = abi::__cxa_demangle(type.c_str(), 0, 0, &status);
+    if (status != 0) {
+        returnType = "undefined type";
+    } 
+    return returnType;
+/*
     // std::cout << "\nreceived type: " << type << "\n";
     if (type[0] == 'P') {
         type = type.substr(1);
@@ -49,26 +61,31 @@ std::string getType(std::string type) {
     if (type[0] == 'K') {
         type = type.substr(1);
     }
+    if (type[0] == 'A') {
+        arraySize = getTypeLenPart(type.substr(1));
+        type = type.substr(1+arraySize.length()+1);
+        returnType = "array[" + arraySize + "] ";
+    }
     if (type == "i") {
-        returnType = "int" ;
+        returnType += "int" ;
     } else if (type == "j") {
-        returnType = "unsigned int";
+        returnType += "unsigned int";
     } else if (type == "l") {
-        returnType = "long";
+        returnType += "long";
     } else if (type == "m") {
-        returnType = "unsigned long";
+        returnType += "unsigned long";
     } else if (type == "f") {
-        returnType = "float";
+        returnType += "float";
     } else if (type == "d") {
-        returnType = "double";
+        returnType += "double";
     } else if (type == "s") {
-        returnType = "short";
+        returnType += "short";
     } else if (type == "t") {
-        returnType = "unsigned short";
+        returnType += "unsigned short";
     } else if (type == "c") {
-        returnType = "char";
+        returnType += "char";
     } else if (type == "h") {
-        returnType = "unsigned char";
+        returnType += "unsigned char";
     } else if (isdigit(type[0]) || // simple type
                type.substr(0,2) == "ZN" || // inside function type ?
                (type[0] == 'N' && isdigit(type[1])) // namespaced type ?
@@ -79,7 +96,7 @@ std::string getType(std::string type) {
            type = type.substr(2);
         } else if (type[0] == 'N' && isdigit(type[1])) {
            type = type.substr(1);
-        } else { 
+        } else {
             std::cout << "\nType identified is : " << type << "\n";
             returnType = "Unidentified Type";
         }
@@ -88,7 +105,7 @@ std::string getType(std::string type) {
         // std::cout << "\nType identified is : " << type << "\n";
         returnType = "Unidentified Type";
     }
-    return returnType;
+    return returnType; */
 }
 
 bool hasConstInPrettyFunctionResultParamType(std::string prettyFunction) {
