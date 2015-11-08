@@ -67,11 +67,17 @@ inline void deduce_type(const std::string& typePrettyFunction,
     } else {
         retStruct.deducedTypeForT = typePrettyFunction;
     }
-
-    if (retStruct.isConst) {
+    std::string deducedParamType = paramType;
+    if (retStruct.isConst && 
+        !retStruct.isRValueRef) { // rvalues are const by definition
         retStruct.deducedTypeForParamType += "const ";
+        size_t positionOfConstInParamType = paramType.find(" const"); 
+        if (positionOfConstInParamType != std::string::npos) {
+            deducedParamType.erase(positionOfConstInParamType, 6);
+        }
     }
-    retStruct.deducedTypeForParamType += paramType;
+
+    retStruct.deducedTypeForParamType += deducedParamType;
     if (retStruct.isRValueRef) {
         retStruct.deducedTypeForParamType += "&&";
     } else if (retStruct.isLValueRef) {
@@ -126,7 +132,7 @@ ReturnStructure templateReceivingFuncByRef(T& param) {
 }
 
 template<typename T>
-ReturnStructure templateReceivingByConstRef(const T& param) {
+ReturnStructure templateReceivingByRefToConst(const T& param) {
     using namespace std;
     const T x(param);
     ReturnStructure retStruct;
