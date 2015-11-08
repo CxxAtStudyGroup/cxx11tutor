@@ -121,7 +121,7 @@ void UtilityTests::testGetTypeOnStruct() {
     std::string type = typeid (var).name();
     
     std::string typeFromGetType = getType(type);
-    std::string expected("UtilityTests::testGetTypeOnStruct::MyStruct");
+    std::string expected("UtilityTests::testGetTypeOnStruct()::MyStruct");
     CPPUNIT_ASSERT_EQUAL(typeFromGetType, expected);
 }
 
@@ -133,7 +133,7 @@ void UtilityTests::testGetTypeOnClass() {
     std::string type = typeid (var).name();
     
     std::string typeFromGetType = getType(type);
-    std::string expected("UtilityTests::testGetTypeOnClass::MyClass");
+    std::string expected("UtilityTests::testGetTypeOnClass()::MyClass");
     CPPUNIT_ASSERT_EQUAL(typeFromGetType, expected);
 }
 

@@ -67,17 +67,17 @@ inline void deduce_type(const std::string& typePrettyFunction,
     } else {
         retStruct.deducedTypeForT = typePrettyFunction;
     }
-    std::string deducedParamType = paramType;
+//    std::string deducedParamType = paramType;
     if (retStruct.isConst && 
         !retStruct.isRValueRef) { // rvalues are const by definition
         retStruct.deducedTypeForParamType += "const ";
-        size_t positionOfConstInParamType = paramType.find(" const"); 
-        if (positionOfConstInParamType != std::string::npos) {
-            deducedParamType.erase(positionOfConstInParamType, 6);
-        }
+//        size_t positionOfConstInParamType = paramType.find(" const"); 
+//        if (positionOfConstInParamType != std::string::npos) {
+//            deducedParamType.erase(positionOfConstInParamType, 6);
+//        }
     }
 
-    retStruct.deducedTypeForParamType += deducedParamType;
+    retStruct.deducedTypeForParamType += paramType;
     if (retStruct.isRValueRef) {
         retStruct.deducedTypeForParamType += "&&";
     } else if (retStruct.isLValueRef) {
