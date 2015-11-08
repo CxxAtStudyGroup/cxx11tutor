@@ -13,11 +13,15 @@
 class DeducingTypesTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(DeducingTypesTest);
 
-    CPPUNIT_TEST(testTemplateReceivingByRef);
-    CPPUNIT_TEST(testTemplateReceivingByRefToConst);
-    CPPUNIT_TEST(testTemplateReceivingByPointer);
-    CPPUNIT_TEST(testTemplateReceivingByRvalue);
-    CPPUNIT_TEST(testTemplateReceivingByValue);
+    CPPUNIT_TEST(item1Case1TemplateReceivingByRef);
+    CPPUNIT_TEST(item1Case1TemplateReceivingByRefToConst);
+    CPPUNIT_TEST(item1Case1TemplateReceivingByPointer);
+    CPPUNIT_TEST(item1Case2TemplateReceivingByRvalue);
+    CPPUNIT_TEST(item1Case3TemplateReceivingByValue);
+    CPPUNIT_TEST(item1Case3TemplateReceivingArrayByValue);
+    CPPUNIT_TEST(item1Case3TemplateReceivingArrayByRef);
+    CPPUNIT_TEST(item1Case3TemplateReceivingFuncByValue);
+    CPPUNIT_TEST(item1Case3TemplateReceivingFuncByRef);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -28,11 +32,15 @@ public:
     void tearDown();
 
 private:
-    void testTemplateReceivingByRef();
-    void testTemplateReceivingByRefToConst();
-    void testTemplateReceivingByPointer();
-    void testTemplateReceivingByRvalue();
-    void testTemplateReceivingByValue();
+    void item1Case1TemplateReceivingByRef();
+    void item1Case1TemplateReceivingByRefToConst();
+    void item1Case1TemplateReceivingByPointer();
+    void item1Case2TemplateReceivingByRvalue();
+    void item1Case3TemplateReceivingByValue();
+    void item1Case3TemplateReceivingArrayByValue();
+    void item1Case3TemplateReceivingArrayByRef();
+    void item1Case3TemplateReceivingFuncByValue();
+    void item1Case3TemplateReceivingFuncByRef();
 
 };
 
